@@ -1,41 +1,37 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+console.log("Server is starting...");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var express = require("express");
+var cors = require("cors");
+var https = require("https");
+var fs = require("fs");
 
 var app = express();
+app.use(cors());
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+var connection;
+var api_token;
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+var port = 2222;
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+const httpsOptions = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+const server = https.createServer(httpsOptions, app).listen(port, () => {
+    console.log('server running at ' + port)
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use("/lucy", handleWebHook);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+
+app.use("/", function(request, response) {
+  response.send("Wernerfindeniggggg");
 });
 
-module.exports = app;
+function handleWebHook(request, response)
+{
+  console.log(request.data);
+  response.send({"Peter": "Rendl"});
+
+}
